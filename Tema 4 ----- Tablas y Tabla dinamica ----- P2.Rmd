@@ -1,0 +1,384 @@
+---
+title: 'Tema 4: Tablas y la tabla dinamica'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+suppressWarnings(library(magrittr))
+suppressWarnings(library(dplyr))
+suppressWarnings(library(readxl))
+suppressWarnings(library(tidyr))
+suppressWarnings(library(DT))
+suppressWarnings(library(kableExtra))
+suppressWarnings(library(formattable))
+suppressWarnings(library(knitr))
+suppressWarnings(library(kableExtra))
+suppressWarnings(library(rpivotTable))
+suppressWarnings(library(gt))
+suppressWarnings(library(reactable))
+suppressWarnings(library(flextable))
+
+
+setwd("C:/Users/oscar/Desktop/R --- SAF/Tema 4")
+
+data <- read_excel("data.xlsx")
+```
+
+
+<style>
+table {
+background-color:#FFFFFF;
+}
+</style>
+
+<style>
+.list-group-item.active, .list-group-item.active:focus, .list-group-item.active:hover {
+    background-color: darkblue;
+}
+</style>
+
+<button onclick="document.body.scrollTop = document.documentElement.scrollTop = 0;" style="
+    position: fixed;
+    bottom: 5px;
+    right: 40px;
+    text-align: center;
+    cursor: pointer;
+    outline: none;
+    color: #fff;
+    background-color: #0A71A0;
+    border: none;
+    border-radius: 15px;
+    
+">Ir arriba</button>
+
+# {.tabset .tabset-fade .tabset-pills}
+
+El presente tema expone la representación tabular.  Se abordarán los puntos:
+
+- La tabla "clásica".
+- Otras formas más elegantes de presentar la información.
+- La tabla dinámica o pivot table.
+
+
+Al finalizar la sesión se estará en capacidad de poder presentar de mejor forma los resultados tabulares provientes, ya sea 
+de un arreglo de datos, o de un determinado análisis de la información.
+
+![](bsn.png)
+
+## **Al final del ETL...** {.tabset .tabset-fade .tabset-pills}
+
+![](bsn.png)
+
+----------------------------------------------------------------------------------
+
+## **Tabla clásica** {.tabset .tabset-fade .tabset-pills}
+
+![](bsn.png)
+
+## **DT** {.tabset .tabset-fade .tabset-pills}
+
+![](bsn.png)
+
+## **formattable** {.tabset .tabset-fade .tabset-pills}
+
+![](bsn.png) 
+
+## **kable + kableExtra** {.tabset .tabset-fade .tabset-pills}
+
+![](bsn.png)
+
+
+## **gt** {.tabset .tabset-fade .tabset-pills}
+
+![](bsn.png)
+
+## **reactable** {.tabset .tabset-fade .tabset-pills}
+
+![](bsn.png) 
+
+## **flextable** {.tabset .tabset-fade .tabset-pills}
+
+![](bsn.png) 
+
+## **rhandsontable** {.tabset .tabset-fade .tabset-pills}
+
+![](bsn.png)
+
+La librería**rhandsontable**, a partir de su función *rhandsontable()* brinda un componente de cuadrícula de datos con una apariencia similar a Excel. 
+
+Construido en JavaScript, se integra con cualquier fuente de datos con máxima eficiencia. Viene con características poderosas como validación de datos, clasificación, agrupamiento, enlace de datos, soporte de fórmulas o ordenamiento de columnas. 
+
+En sí, es toda!
+
+La estructura de la función *rhandsontable()* es la siguiente:
+
+```{r eval=FALSE}
+rhandsontable(data, colHeaders, rowHeaders, comments = NULL,
+  useTypes = TRUE, readOnly = NULL, selectCallback = FALSE,
+  width = NULL, height = NULL, digits = 4, debug = NULL,
+  search = FALSE, ...)
+```
+
+Veamos unos cuantos ejemplos:
+
+```{r}
+library(rhandsontable)
+
+DF = data.frame(integer = 1:10,
+                   numeric = rnorm(10),
+                   logical = rep(TRUE, 10), 
+                   character = LETTERS[1:10],
+                   factor = factor(letters[1:10], levels = letters[10:1], 
+                                   ordered = TRUE),
+                   factor_allow = factor(letters[1:10], levels = letters[10:1], 
+                                         ordered = TRUE),
+                   date = seq(from = Sys.Date(), by = "days", length.out = 10),
+                   stringsAsFactors = FALSE)
+
+rhandsontable(DF, width = 600, height = 300) %>%
+  hot_col("factor_allow", allowInvalid = TRUE)
+```
+
+Y vemos que podemos interactuar con la tabla! 
+
+¿No les parece cool?
+
+**Una tabla con sparkline**
+
+```{r}
+DF = data.frame(val = 1:10, bool = TRUE, big = LETTERS[1:10],
+                small = letters[1:10],
+                dt = seq(from = Sys.Date(), by = "days", length.out = 10),
+                stringsAsFactors = FALSE)
+
+DF$chart = c(sapply(1:5,
+                    function(x) jsonlite::toJSON(list(values=rnorm(10),
+                                                      options = list(type = "bar")))),
+             sapply(1:5,
+                    function(x) jsonlite::toJSON(list(values=rnorm(10),
+                                                      options = list(type = "line")))))
+
+rhandsontable(DF, rowHeaders = NULL, width = 550, height = 300) %>%
+  hot_col("chart", renderer = htmlwidgets::JS("renderSparkline"))
+```
+
+**Una un tanto más chick:**
+
+```{r}
+DF = data.frame(
+  title = c(
+    "<a href='http://www.amazon.com/Professional-JavaScript-Developers-Nicholas-Zakas/dp/1118026691'>Professional JavaScript for Web Developers</a>",
+    "<a href='http://shop.oreilly.com/product/9780596517748.do'>JavaScript: The Good Parts</a>",
+    "<a href='http://shop.oreilly.com/product/9780596805531.do'>JavaScript: The Definitive Guide</a>"
+  ),
+  desc = c(
+    "This <a href='http://bit.ly/sM1bDf'>book</a> provides a developer-level introduction along with more advanced and useful features of <b>JavaScript</b>.",
+    "This book provides a developer-level introduction along with <b>more advanced</b> and useful features of JavaScript.",
+    "<em>JavaScript: The Definitive Guide</em> provides a thorough description of the core <b>JavaScript</b> language and both the legacy and standard DOMs implemented in web browsers."
+  ),
+  comments = c(
+    "I would rate it &#x2605;&#x2605;&#x2605;&#x2605;&#x2606;",
+    "This is the book about JavaScript",
+    "I've never actually read it, but the <a href='http://shop.oreilly.com/product/9780596805531.do'>comments</a> are highly <strong>positive</strong>."
+  ), 
+  cover = c(
+    "http://ecx.images-amazon.com/images/I/51bRhyVTVGL._SL50_.jpg",
+    "http://ecx.images-amazon.com/images/I/51gdVAEfPUL._SL50_.jpg",
+    "http://ecx.images-amazon.com/images/I/51VFNL4T7kL._SL50_.jpg"
+ ),
+ stringsAsFactors = FALSE
+)
+
+rhandsontable(DF, allowedTags = "<em><b><strong><a><big>", 
+              width = 800, height = 450, rowHeaders = FALSE) %>%
+  hot_cols(colWidths = c(200, 200, 200, 80)) %>%
+  hot_col(1:2, renderer = "html") %>%
+  hot_col(1:3, renderer = htmlwidgets::JS("safeHtmlRenderer")) %>%
+  hot_col(4, renderer = "
+    function(instance, td, row, col, prop, value, cellProperties) {
+      var escaped = Handsontable.helper.stringify(value),
+        img;
+  
+      if (escaped.indexOf('http') === 0) {
+        img = document.createElement('IMG');
+        img.src = value;
+  
+        Handsontable.dom.addEvent(img, 'mousedown', function (e){
+          e.preventDefault(); // prevent selection quirk
+        });
+  
+        Handsontable.dom.empty(td);
+        td.appendChild(img);
+      }
+      else {
+        // render as text
+        Handsontable.renderers.TextRenderer.apply(this, arguments);
+      }
+  
+      return td;
+    }")
+```
+
+**Pongamos color a la vida!**
+
+```{r}
+DF = data.frame(val = 1:10, bool = TRUE, big = LETTERS[1:10],
+                small = letters[1:10],
+                dt = seq(from = Sys.Date(), by = "days", length.out = 10),
+                stringsAsFactors = FALSE)
+
+col_highlight = 2
+row_highlight = c(5, 7)
+
+rhandsontable(DF, col_highlight = col_highlight, 
+              row_highlight = row_highlight,
+              width = 550, height = 300) %>%
+  hot_cols(renderer = "
+    function(instance, td, row, col, prop, value, cellProperties) {
+      Handsontable.renderers.TextRenderer.apply(this, arguments);
+      
+      tbl = this.HTMLWidgets.widgets[0]
+
+      hcols = tbl.params.col_highlight
+      hcols = hcols instanceof Array ? hcols : [hcols] 
+      hrows = tbl.params.row_highlight
+      hrows = hrows instanceof Array ? hrows : [hrows] 
+
+      if (hcols.includes(col) && hrows.includes(row)) {
+        td.style.background = 'red';
+      }
+      else if (hcols.includes(col)) {
+        td.style.background = 'lightgreen';
+      }
+      else if (hrows.includes(row)) {
+        td.style.background = 'pink';
+      }
+      
+      return td;
+  }")
+```
+
+**Para tablas muy grandes podemos parametrizar el tamaño:**
+
+```{r}
+rhandsontable(mtcars, rowHeaderWidth = 150)
+```
+
+**Bordes:**
+
+```{r}
+MAT = matrix(rnorm(50), nrow = 10, dimnames = list(LETTERS[1:10],
+                                                   letters[1:5]))
+
+rhandsontable(MAT, width = 550, height = 300) %>%
+  hot_table(customBorders = list(list(
+    range = list(from = list(row = 1, col = 1),
+                 to = list(row = 2, col = 2)),
+    top = list(width = 2, color = "red"),
+    left = list(width = 2, color = "red"),
+    bottom = list(width = 2, color = "red"),
+    right = list(width = 2, color = "red"))))
+```
+
+**Mapas de calor **
+
+```{r}
+MAT = matrix(rnorm(50), nrow = 10, dimnames = list(LETTERS[1:10],
+                                                   letters[1:5]))
+
+rhandsontable(MAT, width = 550, height = 300) %>%
+  hot_heatmap()
+```
+
+-------------------------------------------------------------------
+
+Para mayores referencias, ver el siguiente enlace:
+
+https://jrowen.github.io/rhandsontable/
+
+-------------------------------------------------------------------
+
+## **Tabla dinámica** {.tabset .tabset-fade .tabset-pills}
+
+![](bsn.png)
+
+Finalmente, llegamos a la parte donde se demuestre por qué R destroza cualquier posibilidad de superviviencia de Excel...
+
+Sin más, veamos la creación de una tabla dinámica mejorada en R. 
+
+Para esto utilizaremos los datos de *mtcas*:
+
+-----------------------------------------------------------------------------------------
+
+```{r}
+formattable(mtcars)
+```
+
+-----------------------------------------------------------------------------------------
+
+Para crear una tabla dinámica en R, utilizamos la función rpivotTabla()
+
+```{r}
+library(rpivotTable)
+
+rpivotTable(mtcars,rows="gear", cols=c("cyl","carb"),width="100%", height="400px")
+```
+
+-----------------------------------------------------------------------------------------
+
+Y a partir de esta tabla dinámica, podemos crear gráficos además:
+
+- barras
+- treemaps
+- y muchas, muchas cosas más!
+
+¿No les parece demasiado cool?
+
+## **Referencias** {.tabset .tabset-fade .tabset-pills}
+
+![](bsn.png)
+
+https://rstudio.github.io/DT/#:~:text=The%20R%20package%20DT%20provides,other%20features%20in%20the%20tables.
+https://www.rdocumentation.org/packages/DT/versions/0.15
+https://blog.rstudio.com/2015/06/24/dt-an-r-interface-to-the-datatables-library/
+https://shiny.rstudio.com/articles/datatables.html
+https://github.com/rstudio/DT
+
+https://www.displayr.com/formattable/
+https://cran.r-project.org/web/packages/formattable/vignettes/formattable-data-frame.html
+https://www.littlemissdata.com/blog/prettytables
+https://renkun-ken.github.io/formattable/
+https://rfortherestofus.com/2019/11/how-to-make-beautiful-tables-in-r/
+
+https://cran.r-project.org/web/packages/kableExtra/vignettes/awesome_table_in_html.html
+https://bookdown.org/yihui/rmarkdown-cookbook/kableextra.html
+http://gauss.inf.um.es:8080/tabular-tablas/
+https://rpubs.com/yutao/444395
+
+https://gt.rstudio.com/articles/intro-creating-gt-tables.html
+https://www.r-bloggers.com/great-looking-tables-gt-v0-2/
+https://medium.com/the-artificial-impostor/playing-with-rstudio-gt-r-package-2f37a340c23f
+https://rdrr.io/github/rstudio/gt/
+
+https://glin.github.io/reactable/
+https://awesomeopensource.com/project/glin/reactable
+https://rdrr.io/github/glin/reactable/man/reactable-shiny.html
+https://towardsdatascience.com/recreate-publication-quality-interactive-tables-in-r-using-reactable-187407bc9702
+
+https://davidgohel.github.io/flextable/articles/overview.html
+https://davidgohel.github.io/flextable/
+https://www.user2019.fr/static/pres/t256480.pdf
+https://rdrr.io/cran/flextable/man/flextable.html
+
+https://mran.revolutionanalytics.com/snapshot/2016-01-01/web/packages/rhandsontable/vignettes/intro_rhandsontable.html
+https://rdrr.io/cran/rhandsontable/man/hot_col.html
+https://github.com/jrowen/rhandsontable
+https://www.rdocumentation.org/packages/rhandsontable/versions/0.3.7/topics/rhandsontable
+https://cran.r-project.org/web/packages/rhandsontable/vignettes/intro_rhandsontable.html#:~:text=rhandsontable%20attempts%20to%20map%20R,to%20set%20strict%20to%20FALSE%20).
+
+https://cran.r-project.org/web/packages/rpivotTable/vignettes/rpivotTableIntroduction.html
+https://cran.r-project.org/web/packages/rpivotTable/index.html
+https://www.r-bloggers.com/interactive-pivot-tables-with-r/
+
